@@ -40,18 +40,6 @@ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 # Тестирование
 
-Чтобы проверить реализацию методов GET, POST, PUT, DELETE запустите test.py в отдельном терминале.
-
-```bash
-sudo docker exec {server_server_fake_1} uv run test.py
-```
-В {} изменить на свой вариант сервера указанный в терминале докера. Фигурные скобки удалить.
-
-В терминале с веб-приложением увидим результаты. 
-
-test.py отправляет запросы через localhost:443/api/books/{id}.
-В то время как HTML версия - localhost:443/books/{id}/{create,delete,edit}, принимает только GET и POST запросы.
-
 Отправим запросы через curl
 
 Увидим список всех книг. 
@@ -112,3 +100,4 @@ sudo docker-compose -f docker-compose.gitlab.yml up --build
 ```bash
 curl -k -I https://gitlab.local/users/sign_in
 ```
+
