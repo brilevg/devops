@@ -1,0 +1,50 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    hostname: gitlab.local
+    ports:
+      - '80:80'           # HTTP для редиректа на HTTPS
+      - '443:443'         # HTTPS
+      - '8822:22'         # SSH
+      - '5005:5005'       # Registry
+    volumes:
+      - './data/gitlab/config:/etc/gitlab'
+      - './data/gitlab/logs:/var/log/gitlab'
+      - './data/gitlab/data:/var/opt/gitlab'
+      - './gitlab:/etc/gitlab/ssl'  # Для SSL сертификатов
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Основной URL
+        external_url 'https://gitlab.local'
+        
+        # Настройки SSL
+        nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.local.crt"
+        nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.local.key"
+        nginx['redirect_http_to_https'] = true
+        
+        # Настройки Registry
+        registry_external_url 'https://registry.gitlab.local:5005'
+        gitlab_rails['registry_enabled'] = true
+        gitlab_rails['registry_host'] = "registry.gitlab.local"
+        gitlab_rails['registry_port'] = "5005"
+        gitlab_rails['registry_path'] = "/var/opt/gitlab/gitlab-rails/shared/registry"
+        gitlab_rails['registry_api_url'] = "http://localhost:5000"
+        
+        # SSH порт
+        gitlab_rails['gitlab_shell_ssh_port'] = 8822
+        
+        # Registry настройки
+        registry['enable'] = true
+        registry['token_realm'] = "https://gitlab.local"
+        registry['registry_http_addr'] = "localhost:5000"
+        
+        # Дополнительные настройки для HTTPS
+        gitlab_rails['gitlab_https'] = true
+        gitlab_rails['gitlab_host'] = "gitlab.local"
+        gitlab_rails['gitlab_port'] = 443
+    networks:
+      - gitlab
+
+networks:
+  gitlab:
+    driver: bridge

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="header-actions">
+    <h2>Список книг</h2>
+    <a href="{{ url_for('book_create') }}" class="btn btn-success"> Добавить книгу</a>
+</div>
+
+{% if books %}
+    {% for book in books %}
+    <div class="book-card">
+        <div class="book-title">{{ book.title }}</div>
+        <div class="book-author"><strong>Автор:</strong> {{ book.author }}</div>
+        {% if book.year %}
+        <div><strong>Год издания:</strong> {{ book.year }}</div>
+        {% endif %}
+        {% if book.description %}
+        <div style="margin: 10px 0;"><strong>Описание:</strong> {{ book.description }}</div>
+        {% endif %}
+        <div class="book-actions">
+            <a href="{{ url_for('book_edit', book_id=book.id) }}" class="btn">Редактировать</a>
+            <form action="{{ url_for('book_delete', book_id=book.id) }}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить эту книгу?')">Удалить</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div style="text-align: center; padding: 40px;">
+        <h3>Книг пока нет</h3>
+        <p>Добавьте первую книгу библиотеку!</p>
+        <a href="{{ url_for('book_create') }}" class="btn btn-success"> Добавить книгу</a>
+    </div>
+{% endif %}
+{% endblock %}

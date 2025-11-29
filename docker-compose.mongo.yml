@@ -1,0 +1,14 @@
+services:
+  db:
+    image: mongo:6
+    container_name: mongodb
+    environment:
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_DB=${MONGO_DB}
+    volumes:
+      - ./data/mongo:/data/db
+    ports:
+      - "27017:27017"
+    networks:
+      - main

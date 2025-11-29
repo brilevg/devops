@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if book %}Редактировать книгу{% else %}Добавить книгу{% endif %} - Библиотека книг{% endblock %}
+
+{% block content %}
+<h2>{% if book %} Редактировать книгу{% else %}Добавить книгу{% endif %}</h2>
+
+<form method="post" style="max-width: 600px;">
+    <div class="form-group">
+        <label for="title">Название книги:</label>
+        <input type="text" id="title" name="title" value="{{ book.title if book else '' }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="author">Автор:</label>
+        <input type="text" id="author" name="author" value="{{ book.author if book else '' }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="year">Год издания:</label>
+        <input type="number" id="year" name="year" value="{{ book.year if book else '' }}" min="1000" max="2030">
+    </div>
+    
+    <div class="form-group">
+        <label for="description">Описание:</label>
+        <textarea id="description" name="description">{{ book.description if book else '' }}</textarea>
+    </div>
+    
+    <div>
+        <button type="submit" class="btn btn-success">
+            {% if book %}Сохранить изменения{% else %}Добавить книгу{% endif %}
+        </button>
+        <a href="{{ url_for('book_list') }}" class="btn"> Отмена</a>
+    </div>
+</form>
+{% endblock %}
