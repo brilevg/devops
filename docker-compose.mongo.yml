@@ -1,14 +1,22 @@
+# Определение сервисов Docker Compose
 services:
+  # Сервис базы данных с именем db
   db:
+    # Используется официальный образ MongoDB версии 6
     image: mongo:6
+    # Явное имя контейнера для удобства обращения
     container_name: mongodb
+    # Переменные окружения для настройки MongoDB
     environment:
-      - MONGO_HOST=${MONGO_HOST}
-      - MONGO_PORT=${MONGO_PORT}
-      - MONGO_DB=${MONGO_DB}
+      - MONGO_HOST=${MONGO_HOST}  # Хост MongoDB (берется из переменных окружения)
+      - MONGO_PORT=${MONGO_PORT}  # Порт MongoDB (берется из переменных окружения)
+      - MONGO_DB=${MONGO_DB}      # Имя базы данных (берется из переменных окружения)
+    # Монтирование томов для сохранения данных
     volumes:
-      - ./data/mongo:/data/db
+      - ./data/mongo:/data/db  # Локальная папка для хранения данных БД
+    # Проброс портов между контейнером и хостом
     ports:
-      - "27017:27017"
+      - "27017:27017"  # Стандартный порт MongoDB доступен с хоста
+    # Подключение к пользовательской сети
     networks:
-      - main
+      - main  # Сеть для связи с другими сервисами
