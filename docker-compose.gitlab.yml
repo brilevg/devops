@@ -1,50 +1,62 @@
+# Определение сервисов Docker Compose
 services:
+  # Сервис с именем gitlab
   gitlab:
+    # Используется официальный образ GitLab Community Edition
     image: gitlab/gitlab-ce:latest
+    # Устанавливает hostname внутри контейнера
     hostname: gitlab.local
+    # Проброс портов между контейнером и хостом:
     ports:
-      - '80:80'           # HTTP для редиректа на HTTPS
-      - '443:443'         # HTTPS
-      - '8822:22'         # SSH
-      - '5005:5005'       # Registry
+      - '80:80'           # HTTP-порт для редиректа на HTTPS
+      - '443:443'         # Основной HTTPS-порт для веб-интерфейса
+      - '8822:22'         # SSH-порт для Git-операций (изменен с стандартного 22)
+      - '5005:5005'       # Порт для Docker Registry (реестра образов)
+    
+    # Монтирование томов для сохранения данных
     volumes:
-      - './data/gitlab/config:/etc/gitlab'
-      - './data/gitlab/logs:/var/log/gitlab'
-      - './data/gitlab/data:/var/opt/gitlab'
-      - './gitlab:/etc/gitlab/ssl'  # Для SSL сертификатов
+      - './data/gitlab/config:/etc/gitlab'      # Конфигурационные файлы
+      - './data/gitlab/logs:/var/log/gitlab'    # Логи
+      - './data/gitlab/data:/var/opt/gitlab'    # Основные данные (БД, репозитории)
+      - './gitlab:/etc/gitlab/ssl'              # Кастомные SSL-сертификаты
+    
+    # Переменные окружения для настройки GitLab
     environment:
-      GITLAB_OMNIBUS_CONFIG: |
-        # Основной URL
+      GITLAB_OMNIBUS_CONFIG: |  # Блок конфигурации Omnibus GitLab
+        # Основной URL GitLab
         external_url 'https://gitlab.local'
         
-        # Настройки SSL
+        # Настройки SSL-сертификатов
         nginx['ssl_certificate'] = "/etc/gitlab/ssl/gitlab.local.crt"
         nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/gitlab.local.key"
-        nginx['redirect_http_to_https'] = true
+        nginx['redirect_http_to_https'] = true  # Принудительное HTTPS
         
-        # Настройки Registry
+        # Настройки встроенного реестра контейнеров
         registry_external_url 'https://registry.gitlab.local:5005'
         gitlab_rails['registry_enabled'] = true
         gitlab_rails['registry_host'] = "registry.gitlab.local"
         gitlab_rails['registry_port'] = "5005"
         gitlab_rails['registry_path'] = "/var/opt/gitlab/gitlab-rails/shared/registry"
-        gitlab_rails['registry_api_url'] = "http://localhost:5000"
+        gitlab_rails['registry_api_url'] = "http://localhost:5000"  # Внутренний адрес
         
-        # SSH порт
+        # Кастомный порт для SSH-операций
         gitlab_rails['gitlab_shell_ssh_port'] = 8822
         
-        # Registry настройки
+        # Дополнительные настройки реестра
         registry['enable'] = true
-        registry['token_realm'] = "https://gitlab.local"
-        registry['registry_http_addr'] = "localhost:5000"
+        registry['token_realm'] = "https://gitlab.local"  # URL для аутентификации
+        registry['registry_http_addr'] = "localhost:5000" # Внутренний слушающий адрес
         
-        # Дополнительные настройки для HTTPS
+        # Дополнительные HTTPS-настройки
         gitlab_rails['gitlab_https'] = true
         gitlab_rails['gitlab_host'] = "gitlab.local"
         gitlab_rails['gitlab_port'] = 443
+    
+    # Подключение к пользовательской сети
     networks:
       - gitlab
 
+# Определение сетей
 networks:
   gitlab:
-    driver: bridge
+    driver: bridge  # Тип сети - мост (bridge)
