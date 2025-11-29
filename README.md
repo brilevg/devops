@@ -12,13 +12,16 @@ sudo apt install docker-compose docker.io curl
 ```
 
 # Запуск
-
-Переходим в папку server
+Клонируйте репозиторий:
+```bash
+git clone git@github.com:brilevg/devops.git
+```
+Перейдите в папку devops
 ```bash
 cd devops
 ```
 
-Создадим ключи для nginx
+Создадите ключи для nginx
 ```bash
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -keyout nginx/ssl.key \
@@ -40,14 +43,14 @@ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 # Тестирование
 
-Отправим запросы через curl
+Отправьте запросы через curl
 
-Увидим список всех книг. 
+Увидите список всех книг: 
 ```bash
 curl -v -k -X GET http://localhost:8000/api/books
 ```
 
-Создадим новую книгу.
+Создайте новую книгу:
 ```bash
 curl -v -k -X POST https://localhost:443/api/books \
   -H "Content-Type: application/json" \
@@ -59,13 +62,13 @@ curl -v -k -X POST https://localhost:443/api/books \
   }'
 ```
 
-Теперь увидим саму книгу.
-Замените {id} на реальный ID из ответа POST запроса
+Теперь увидите саму книгу.
+Замените {id} на реальный ID из ответа POST запроса:
 ```bash
 curl -v -k -X GET https://localhost:443/api/books/{id}
 ```
 
-Обновим книгу.
+Обновите книгу:
 ```bash
 curl -v -k -X PUT https://localhost:443/api/books/{id} \
   -H "Content-Type: application/json" \
@@ -77,14 +80,14 @@ curl -v -k -X PUT https://localhost:443/api/books/{id} \
   }'
 ```
 
-Удалим книгу.
+Удалите книгу:
 ```bash
 curl -v -k -X DELETE http://localhost:8000/api/books/{id}
 ```
 
 ## Gitlab
 
-В /etc/hosts добавить запись:
+В /etc/hosts добавьте запись:
 
 ```
 127.0.0.1 gitlab.local
@@ -95,9 +98,11 @@ curl -v -k -X DELETE http://localhost:8000/api/books/{id}
 ```bash
 sudo docker-compose -f docker-compose.gitlab.yml up --build
 ```
+Gitlab запускает не менее 10 минут.
 
-Проверка доступа
+Проверка доступа:
 ```bash
 curl -k -I https://gitlab.local/users/sign_in
 ```
+
 
