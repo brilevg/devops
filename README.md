@@ -14,7 +14,7 @@ sudo apt install docker-compose docker.io curl
 # Запуск
 Клонируйте репозиторий:
 ```bash
-git clone git@github.com:brilevg/devops.git
+git clone https://github.com/brilevg/devops.git
 ```
 Перейдите в папку devops
 ```bash
@@ -104,5 +104,6 @@ Gitlab запускает не менее 10 минут.
 ```bash
 curl -k -I https://gitlab.local/users/sign_in
 ```
+
 
 
