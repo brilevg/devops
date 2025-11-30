@@ -92,7 +92,24 @@ curl -v -k -X DELETE http://localhost:8000/api/books/{id}
 ```
 127.0.0.1 gitlab.local
 ```
+Создайте папку gitlab в папке devops:
+```bash
+mkdir -p gitlab
+```
 
+Создайте два ключа:
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout gitlab/gitlab.local.key \
+  -out gitlab/gitlab.local.crt \
+  -subj "/CN=gitlab.local"
+```
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout gitlab/registry.gitlab.local.key \
+  -out gitlab/registry.gitlab.local.crt \
+  -subj "/CN=registry.gitlab.local"
+```
 Остановите приложение для запуска gitlab. Запускается gitlab командой:
 
 ```bash
@@ -104,6 +121,7 @@ Gitlab запускает не менее 10 минут.
 ```bash
 curl -k -I https://gitlab.local/users/sign_in
 ```
+
 
 
 
