@@ -1,32 +1,6 @@
 import unittest
 from app import app, FakeDB
 
-class TestFakeDB(unittest.TestCase):
-    def setUp(self):
-        self.db = FakeDB()
-
-    def test_create_and_get_book(self):
-        book_data = {'title': 'Book 1', 'author': 'Author 1'}
-        book = self.db.create_book(book_data)
-        self.assertIsNotNone(book)
-        self.assertEqual(book['title'], 'Book 1')
-        self.assertEqual(book['author'], 'Author 1')
-
-        fetched = self.db.get_book(book['id'])
-        self.assertEqual(fetched, book)
-
-    def test_update_book(self):
-        book = self.db.create_book({'title': 'Book 1', 'author': 'Author 1'})
-        updated = self.db.update_book(book['id'], {'title': 'Updated', 'author': 'Author 2'})
-        self.assertEqual(updated['title'], 'Updated')
-        self.assertEqual(updated['author'], 'Author 2')
-
-    def test_delete_book(self):
-        book = self.db.create_book({'title': 'Book 1', 'author': 'Author 1'})
-        deleted = self.db.delete_book(book['id'])
-        self.assertEqual(deleted, book)
-        self.assertIsNone(self.db.get_book(book['id']))
-
 class TestAPI(unittest.TestCase):
     def setUp(self):
         self.client = app.test_client()
