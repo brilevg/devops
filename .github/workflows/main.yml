@@ -39,12 +39,16 @@ jobs:
         run: |
           sed -i '/networks:/,/main:/d' docker-compose.postgres.yml
           sed -i 's/- main//g' docker-compose.postgres.yml
-          
+
+      - name: Create .env for compose
+        run: |
+          echo "POSTGRES_DB=${{ secrets.DB_NAME }}" >> .env
+          echo "POSTGRES_USER=${{ secrets.DB_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
+          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
       - name: Start PostgreSQL
         run: |
-          export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
-          export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
-          export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           docker compose -f docker-compose.postgres.yml up -d
 
       # 🟦 Ожидание запуска контейнера Postgres
