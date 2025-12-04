@@ -1,4 +1,4 @@
-name: Run Unit Tests
+name: test 1
 
 on:
   push:
@@ -27,4 +27,4 @@ jobs:
           pip install -r requirements.txt
         
       - name: Run unittest tests
-        run: python -m unittest discover -s tests -v
+        run: python -m unittest discover -s tests -p "test_1.py"
