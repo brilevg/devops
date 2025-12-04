@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FLASK_SECRET_KEY: "test-secret"
-      DB_TYPE: "fake"   # чтобы всё работало на FakeDB
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      DB_TYPE: "fake" 
 
     steps:
       - name: Checkout repository
