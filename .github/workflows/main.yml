@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-1:
     runs-on: ubuntu-latest
 
     env:
@@ -29,7 +29,7 @@ jobs:
       - name: Run unittest tests
         run: python -m unittest discover -s tests -p "test_1.py"
   
-  build-and-test:
+  test-4:
     runs-on: ubuntu-latest
 
     steps:
@@ -41,7 +41,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
         run: |
-          docker compose -f docker-compose.postgres.yaml up -d
+          docker compose -f docker-compose.postgres.yml up -d
 
       # 🟦 Ожидание запуска контейнера Postgres
       - name: Wait for DB
