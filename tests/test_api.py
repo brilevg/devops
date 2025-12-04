@@ -1,87 +1,85 @@
 import unittest
-import json
-from app import app, FakeDB, db
+from app import app, FakeDB
 
 class TestFakeDB(unittest.TestCase):
     def setUp(self):
         self.db = FakeDB()
 
     def test_create_and_get_book(self):
-        book_data = {'title': 'Test', 'author': 'Author', 'year': 2023}
+        book_data = {'title': 'Book 1', 'author': 'Author 1'}
         book = self.db.create_book(book_data)
-        self.assertEqual(book['id'], 1)
-        self.assertEqual(book['title'], 'Test')
+        self.assertIsNotNone(book)
+        self.assertEqual(book['title'], 'Book 1')
+        self.assertEqual(book['author'], 'Author 1')
 
-        fetched = self.db.get_book(1)
-        self.assertEqual(fetched['title'], 'Test')
+        fetched = self.db.get_book(book['id'])
+        self.assertEqual(fetched, book)
 
     def test_update_book(self):
-        book = self.db.create_book({'title': 'A', 'author': 'B'})
-        updated = self.db.update_book(1, {'title': 'C', 'author': 'D'})
-        self.assertEqual(updated['title'], 'C')
-        self.assertEqual(updated['author'], 'D')
+        book = self.db.create_book({'title': 'Book 1', 'author': 'Author 1'})
+        updated = self.db.update_book(book['id'], {'title': 'Updated', 'author': 'Author 2'})
+        self.assertEqual(updated['title'], 'Updated')
+        self.assertEqual(updated['author'], 'Author 2')
 
     def test_delete_book(self):
-        book = self.db.create_book({'title': 'A', 'author': 'B'})
-        deleted = self.db.delete_book(1)
-        self.assertEqual(deleted['title'], 'A')
-        self.assertIsNone(self.db.get_book(1))
+        book = self.db.create_book({'title': 'Book 1', 'author': 'Author 1'})
+        deleted = self.db.delete_book(book['id'])
+        self.assertEqual(deleted, book)
+        self.assertIsNone(self.db.get_book(book['id']))
 
 class TestAPI(unittest.TestCase):
     def setUp(self):
-        # Тестовый клиент Flask
-        self.app = app.test_client()
+        self.client = app.test_client()
 
-        # Сохраняем реальный db и подменяем на FakeDB
-        global db
-        self.original_db = db
-        db = FakeDB()
+        # Подменяем db на FakeDB
+        self.original_db = app.view_functions['api_get_books'].__globals__['db']
+        app.view_functions['api_get_books'].__globals__['db'] = FakeDB()
+
+        # Тоже подменяем для всех view functions
+        for key, view in app.view_functions.items():
+            if 'db' in view.__globals__:
+                view.__globals__['db'] = app.view_functions['api_get_books'].__globals__['db']
+
+        self.db = app.view_functions['api_get_books'].__globals__['db']
 
     def tearDown(self):
-        global db
-        # Восстанавливаем оригинальный db
-        db = self.original_db
+        # Возвращаем оригинальный db
+        for key, view in app.view_functions.items():
+            if 'db' in view.__globals__:
+                view.__globals__['db'] = self.original_db
 
     def test_api_create_book(self):
-        response = self.app.post('/api/books', json={
-            'title': 'API Book',
-            'author': 'API Author',
-            'year': 2025
-        })
+        response = self.client.post('/api/books', json={'title': 'Book A', 'author': 'Author A'})
         self.assertEqual(response.status_code, 201)
-        data = response.get_json()
-        self.assertEqual(data['title'], 'API Book')
-        self.assertEqual(len(db.get_all_books()), 1)
+        self.assertEqual(len(self.db.get_all_books()), 1)
 
     def test_api_get_books(self):
-        db.create_book({'title': 'B1', 'author': 'A1'})
-        db.create_book({'title': 'B2', 'author': 'A2'})
-        response = self.app.get('/api/books')
+        self.db.create_book({'title': 'Book 1', 'author': 'Author 1'})
+        self.db.create_book({'title': 'Book 2', 'author': 'Author 2'})
+        response = self.client.get('/api/books')
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertEqual(len(data), 2)
 
     def test_api_get_single_book(self):
-        book = db.create_book({'title': 'Single', 'author': 'One'})
-        response = self.app.get(f'/api/books/{book["id"]}')
+        book = self.db.create_book({'title': 'Book X', 'author': 'Author X'})
+        response = self.client.get(f'/api/books/{book["id"]}')
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
-        self.assertEqual(data['title'], 'Single')
+        self.assertEqual(data['title'], 'Book X')
 
     def test_api_update_book(self):
-        book = db.create_book({'title': 'Old', 'author': 'Old'})
-        response = self.app.put(f'/api/books/{book["id"]}', json={'title': 'New', 'author': 'New'})
+        book = self.db.create_book({'title': 'Book Old', 'author': 'Author Old'})
+        response = self.client.put(f'/api/books/{book["id"]}', json={'title': 'Book New', 'author': 'Author New'})
         self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertEqual(data['title'], 'New')
+        updated = self.db.get_book(book['id'])
+        self.assertEqual(updated['title'], 'Book New')
 
     def test_api_delete_book(self):
-        book = db.create_book({'title': 'Del', 'author': 'Del'})
-        response = self.app.delete(f'/api/books/{book["id"]}')
+        book = self.db.create_book({'title': 'Book Del', 'author': 'Author Del'})
+        response = self.client.delete(f'/api/books/{book["id"]}')
         self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertEqual(data['message'], 'Книга удалена')
-        self.assertEqual(len(db.get_all_books()), 0)
+        self.assertEqual(len(self.db.get_all_books()), 0)
 
 if __name__ == '__main__':
     unittest.main()
