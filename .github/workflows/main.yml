@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FLASK_SECRET_KEY: ${{ secret.FLASK_SECRET_KEY }}
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
       DB_TYPE: "fake" 
 
     steps:
