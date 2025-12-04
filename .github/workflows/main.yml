@@ -50,11 +50,12 @@ jobs:
           docker compose -f docker-compose.postgres.yml up -d
 
       # 🟦 Ожидание запуска контейнера Postgres
-      - name: Wait for DB
+      - name: Wait for Postgres
         run: |
+          SERVICE_NAME=db  
           for i in {1..20}; do
-            docker exec $(docker ps -q --filter "name=postgres") \
-              pg_isready -U "${{ secrets.POSTGRES_USER }}" && break
+            docker compose -f docker-compose.postgres.yml exec -T $SERVICE_NAME pg_isready -U "${{ secrets.POSTGRES_USER }}" && break
+            echo "Waiting for Postgres..."
             sleep 2
           done
 
