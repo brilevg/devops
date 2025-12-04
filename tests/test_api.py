@@ -1,11 +1,11 @@
-import pytest
+п»їimport pytest
 from app import app, FakeDB
 
 @pytest.fixture
 def client(monkeypatch):
     """
-    Подменяем реальную БД на FakeDB,
-    чтобы тесты не зависели от Mongo/Postgres.
+    РџРѕРґРјРµРЅСЏРµРј СЂРµР°Р»СЊРЅСѓСЋ Р‘Р” РЅР° FakeDB,
+    С‡С‚РѕР±С‹ С‚РµСЃС‚С‹ РЅРµ Р·Р°РІРёСЃРµР»Рё РѕС‚ Mongo/Postgres.
     """
     fake_db = FakeDB()
     monkeypatch.setattr('app.db', fake_db)
@@ -15,7 +15,7 @@ def client(monkeypatch):
 
 
 def test_api_create_book(client):
-    """Создание книги через POST /api/books"""
+    """РЎРѕР·РґР°РЅРёРµ РєРЅРёРіРё С‡РµСЂРµР· POST /api/books"""
     resp = client.post("/api/books", json={
         "title": "Book A",
         "author": "Author A",
@@ -28,7 +28,7 @@ def test_api_create_book(client):
 
 
 def test_api_get_books(client):
-    """Проверяем, что список книг возвращается корректно"""
+    """РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ СЃРїРёСЃРѕРє РєРЅРёРі РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РєРѕСЂСЂРµРєС‚РЅРѕ"""
     client.post("/api/books", json={"title": "B1", "author": "A1"})
     client.post("/api/books", json={"title": "B2", "author": "A2"})
 
@@ -39,7 +39,7 @@ def test_api_get_books(client):
 
 
 def test_api_update_book(client):
-    """Тест обновления книги"""
+    """РўРµСЃС‚ РѕР±РЅРѕРІР»РµРЅРёСЏ РєРЅРёРіРё"""
     create = client.post("/api/books", json={"title": "Old", "author": "A"})
     book_id = create.get_json()['id']
 
@@ -49,14 +49,14 @@ def test_api_update_book(client):
 
 
 def test_api_delete_book(client):
-    """Удаление книги"""
+    """РЈРґР°Р»РµРЅРёРµ РєРЅРёРіРё"""
     create = client.post("/api/books", json={"title": "Del", "author": "A"})
     book_id = create.get_json()['id']
 
     resp = client.delete(f"/api/books/{book_id}")
     assert resp.status_code == 200
-    assert resp.get_json()["message"] == "Книга удалена"
+    assert resp.get_json()["message"] == "РљРЅРёРіР° СѓРґР°Р»РµРЅР°"
 
-    # после удаления книга не должна находиться
+    # РїРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ РєРЅРёРіР° РЅРµ РґРѕР»Р¶РЅР° РЅР°С…РѕРґРёС‚СЊСЃСЏ
     resp2 = client.get(f"/api/books/{book_id}")
     assert resp2.status_code == 404
