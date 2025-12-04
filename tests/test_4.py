@@ -15,6 +15,7 @@ class TestDatabaseConnection(unittest.TestCase):
             "user": os.environ["POSTGRES_USER"],
             "password": os.environ["POSTGRES_PASSWORD"],
         }
+        print(cfg)
 
         # даём PostgreSQL время подняться
         for _ in range(10):
