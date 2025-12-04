@@ -64,5 +64,10 @@ jobs:
       # 🟦 Установка зависимостей и запуск unittest
       - name: Run tests
         run: |
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
+          echo "POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
+          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
           pip install psycopg2-binary
           python -m unittest discover -s tests -p "test_4.py"
