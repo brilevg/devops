@@ -47,6 +47,9 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
 
         run: |
+          export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+          export POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+          export POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           docker compose -f docker-compose.postgres.yml up -d
 
       # 🟦 Ожидание запуска контейнера Postgres
