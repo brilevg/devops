@@ -29,6 +29,20 @@ sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -subj "/C=RU/ST=Prim/L=VLAD/O=FEFU/OU=STUDENT/CN=localhost"
 ```
 
+Создайте файл .env и укажите:
+```
+FLASK_SECRET_KEY=secret-key
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=db
+POSTGRES_USER=user
+POSTGRES_PASSWORD=password
+
+MONGO_HOST=mongodb
+MONGO_PORT=27017
+MONGO_DB=book_db
+```
+
 Запускается приложение в 3 разных вариантах: для fake БД, postgres и mongo. Одновременно запускать нельзя.
 ```bash
  sudo DB_TYPE=fake ./compose.sh up --build
@@ -121,6 +135,7 @@ Gitlab запускает не менее 10 минут.
 ```bash
 curl -k -I https://gitlab.local/users/sign_in
 ```
+
 
 
 
