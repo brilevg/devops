@@ -6,7 +6,7 @@ class TestAPI(unittest.TestCase):
 
     def setUp(self):
         # тестовый клиент Flask
-        self.client = app.app.test_client()
+        self.client = app.test_client()
         # очистим "базу"
         app.db.data = []
 
