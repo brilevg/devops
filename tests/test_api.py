@@ -1,45 +1,85 @@
 import unittest
 import json
-from app import app, FakeDB
+from app import app, FakeDB, db, DB_TYPE
+
+class TestFakeDB(unittest.TestCase):
+    def setUp(self):
+        # Создаём отдельный экземпляр FakeDB для тестов
+        self.db = FakeDB()
+
+    def test_create_and_get_book(self):
+        book_data = {'title': 'Test', 'author': 'Author', 'year': 2023}
+        book = self.db.create_book(book_data)
+        self.assertEqual(book['id'], 1)
+        self.assertEqual(book['title'], 'Test')
+
+        fetched = self.db.get_book(1)
+        self.assertEqual(fetched['title'], 'Test')
+
+    def test_update_book(self):
+        book = self.db.create_book({'title': 'A', 'author': 'B'})
+        updated = self.db.update_book(1, {'title': 'C', 'author': 'D'})
+        self.assertEqual(updated['title'], 'C')
+        self.assertEqual(updated['author'], 'D')
+
+    def test_delete_book(self):
+        book = self.db.create_book({'title': 'A', 'author': 'B'})
+        deleted = self.db.delete_book(1)
+        self.assertEqual(deleted['title'], 'A')
+        self.assertIsNone(self.db.get_book(1))
 
 class TestAPI(unittest.TestCase):
-
     def setUp(self):
-        # тестовый клиент Flask
-        self.client = app.test_client()
-        # очистим "базу"
-        app.db.data = []
+        # Тестовый клиент Flask
+        self.app = app.test_client()
+        # Используем отдельный FakeDB, чтобы не трогать реальный db
+        self.original_db = app.db
+        app.db = FakeDB()
 
-    def test_write_success(self):
-        response = self.client.post("/write",
-                                    data=json.dumps({"value": "hello"}),
-                                    content_type="application/json")
+    def tearDown(self):
+        # Восстанавливаем оригинальный db
+        app.db = self.original_db
+
+    def test_api_create_book(self):
+        response = self.app.post('/api/books', json={
+            'title': 'API Book',
+            'author': 'API Author',
+            'year': 2025
+        })
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertEqual(data['title'], 'API Book')
+        self.assertEqual(len(app.db.get_all_books()), 1)
+
+    def test_api_get_books(self):
+        app.db.create_book({'title': 'B1', 'author': 'A1'})
+        app.db.create_book({'title': 'B2', 'author': 'A2'})
+        response = self.app.get('/api/books')
         self.assertEqual(response.status_code, 200)
-        self.assertIn("ok", response.json["status"])
-        self.assertEqual(app.db.data, ["hello"])
+        data = response.get_json()
+        self.assertEqual(len(data), 2)
 
-    def test_write_invalid_empty(self):
-        response = self.client.post("/write",
-                                    data=json.dumps({}),
-                                    content_type="application/json")
-        self.assertEqual(response.status_code, 400)
+    def test_api_get_single_book(self):
+        book = app.db.create_book({'title': 'Single', 'author': 'One'})
+        response = self.app.get(f'/api/books/{book["id"]}')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data['title'], 'Single')
 
-    def test_write_missing_field(self):
-        response = self.client.post("/write",
-                                    data=json.dumps({"wrong": 123}),
-                                    content_type="application/json")
-        self.assertEqual(response.status_code, 400)
+    def test_api_update_book(self):
+        book = app.db.create_book({'title': 'Old', 'author': 'Old'})
+        response = self.app.put(f'/api/books/{book["id"]}', json={'title': 'New', 'author': 'New'})
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data['title'], 'New')
 
-    def test_db_stores_multiple_values(self):
-        self.client.post("/write",
-                         data=json.dumps({"value": "a"}),
-                         content_type="application/json")
-        self.client.post("/write",
-                         data=json.dumps({"value": "b"}),
-                         content_type="application/json")
+    def test_api_delete_book(self):
+        book = app.db.create_book({'title': 'Del', 'author': 'Del'})
+        response = self.app.delete(f'/api/books/{book["id"]}')
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertEqual(data['message'], 'Книга удалена')
+        self.assertEqual(len(app.db.get_all_books()), 0)
 
-        self.assertEqual(app.db.all(), ["a", "b"])
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     unittest.main()
