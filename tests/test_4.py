@@ -9,11 +9,11 @@ class TestDatabaseConnection(unittest.TestCase):
     def test_connection(self):
 
         cfg = {
-            "host": os.environ.get("DB_HOST", "localhost"),
-            "port": os.environ.get("DB_PORT", 5432),
-            "dbname": os.environ["DB_NAME"],
-            "user": os.environ["DB_USER"],
-            "password": os.environ["DB_PASSWORD"],
+            "host": os.environ.get("POSTGRES_HOST", "localhost"),
+            "port": os.environ.get("POSTGRES_PORT", 5432),
+            "dbname": os.environ["POSTGRES_NAME"],
+            "user": os.environ["POSTGRES_USER"],
+            "password": os.environ["POSTGRES_PASSWORD"],
         }
 
         # даём PostgreSQL время подняться
