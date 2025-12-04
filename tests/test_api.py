@@ -1,6 +1,6 @@
 import unittest
 import json
-from app import app, FakeDB
+from app import app, FakeDB, db
 
 class TestFakeDB(unittest.TestCase):
     def setUp(self):
