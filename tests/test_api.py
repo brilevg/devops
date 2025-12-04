@@ -1,62 +1,45 @@
-﻿import pytest
+import unittest
+import json
 from app import app, FakeDB
 
-@pytest.fixture
-def client(monkeypatch):
-    """
-    Подменяем реальную БД на FakeDB,
-    чтобы тесты не зависели от Mongo/Postgres.
-    """
-    fake_db = FakeDB()
-    monkeypatch.setattr('app.db', fake_db)
+class TestAPI(unittest.TestCase):
 
-    with app.test_client() as client:
-        yield client
+    def setUp(self):
+        # тестовый клиент Flask
+        self.client = app.app.test_client()
+        # очистим "базу"
+        app.db.data = []
 
+    def test_write_success(self):
+        response = self.client.post("/write",
+                                    data=json.dumps({"value": "hello"}),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("ok", response.json["status"])
+        self.assertEqual(app.db.data, ["hello"])
 
-def test_api_create_book(client):
-    """Создание книги через POST /api/books"""
-    resp = client.post("/api/books", json={
-        "title": "Book A",
-        "author": "Author A",
-        "year": 2024
-    })
-    assert resp.status_code == 201
-    data = resp.get_json()
-    assert data["title"] == "Book A"
-    assert data["author"] == "Author A"
+    def test_write_invalid_empty(self):
+        response = self.client.post("/write",
+                                    data=json.dumps({}),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 400)
 
+    def test_write_missing_field(self):
+        response = self.client.post("/write",
+                                    data=json.dumps({"wrong": 123}),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 400)
 
-def test_api_get_books(client):
-    """Проверяем, что список книг возвращается корректно"""
-    client.post("/api/books", json={"title": "B1", "author": "A1"})
-    client.post("/api/books", json={"title": "B2", "author": "A2"})
+    def test_db_stores_multiple_values(self):
+        self.client.post("/write",
+                         data=json.dumps({"value": "a"}),
+                         content_type="application/json")
+        self.client.post("/write",
+                         data=json.dumps({"value": "b"}),
+                         content_type="application/json")
 
-    resp = client.get("/api/books")
-    assert resp.status_code == 200
-    books = resp.get_json()
-    assert len(books) == 2
-
-
-def test_api_update_book(client):
-    """Тест обновления книги"""
-    create = client.post("/api/books", json={"title": "Old", "author": "A"})
-    book_id = create.get_json()['id']
-
-    resp = client.put(f"/api/books/{book_id}", json={"title": "New", "author": "A"})
-    assert resp.status_code == 200
-    assert resp.get_json()["title"] == "New"
+        self.assertEqual(app.db.all(), ["a", "b"])
 
 
-def test_api_delete_book(client):
-    """Удаление книги"""
-    create = client.post("/api/books", json={"title": "Del", "author": "A"})
-    book_id = create.get_json()['id']
-
-    resp = client.delete(f"/api/books/{book_id}")
-    assert resp.status_code == 200
-    assert resp.get_json()["message"] == "Книга удалена"
-
-    # после удаления книга не должна находиться
-    resp2 = client.get(f"/api/books/{book_id}")
-    assert resp2.status_code == 404
+if __name__ == "__main__":
+    unittest.main()
