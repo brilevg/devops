@@ -34,12 +34,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      
+      - name: Patch compose file for CI
+        run: |
+          sed -i '/networks:/,/main:/d' docker-compose.postgres.yml
+          sed -i 's/- main//g' docker-compose.postgres.yml
+          
       - name: Start PostgreSQL
         env:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+
         run: |
           docker compose -f docker-compose.postgres.yml up -d
 
