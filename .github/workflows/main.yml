@@ -48,7 +48,7 @@ jobs:
 
       - name: Start PostgreSQL
         run: |
-          docker compose --env-file .env -f docker-compose.postgres.yml up -d
+          docker compose -f docker-compose.postgres.yml up -d
 
 
       # 🟦 Ожидание запуска контейнера Postgres
@@ -57,7 +57,7 @@ jobs:
           docker ps
           SERVICE_NAME=postgres  
           for i in {1..20}; do
-            docker compose --env-file .env -f docker-compose.postgres.yml exec -T $SERVICE_NAME pg_isready -U "${{ secrets.POSTGRES_USER }}" && break
+            docker compose -f docker-compose.postgres.yml exec -T $SERVICE_NAME pg_isready -U "${{ secrets.POSTGRES_USER }}" && break
             echo "Waiting for Postgres..."
             sleep 2
           done
