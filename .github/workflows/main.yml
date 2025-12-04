@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      FLASK_SECRET_KEY: ${{ secret.FLASK_SECRET_KEY }}
       DB_TYPE: "fake" 
 
     steps:
@@ -31,7 +31,12 @@ jobs:
   
   test-4:
     runs-on: ubuntu-latest
-
+    env:
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+      POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+      POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
     steps:
       - uses: actions/checkout@v4
       
@@ -40,13 +45,7 @@ jobs:
           sed -i '/networks:/,/main:/d' docker-compose.postgres.yml
           sed -i 's/- main//g' docker-compose.postgres.yml
 
-      - name: Create .env for compose
-        run: |
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-          echo "POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
-          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
+
       - name: Start PostgreSQL
         run: |
           docker compose --env-file .env -f docker-compose.postgres.yml up -d
@@ -67,10 +66,5 @@ jobs:
       - name: Run tests
         run: |
 
-          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
-          echo "POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
-          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
           pip install psycopg2-binary
           python -m unittest discover -s tests -p "test_4.py"
