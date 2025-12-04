@@ -25,10 +25,6 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          
-      - name: Add project root to PYTHONPATH
-        run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
         
-      - name: Run unit tests
-        run: |
-          pytest -q
+      - name: Run unittest tests
+        run: python -m unittest discover -s tests -v
