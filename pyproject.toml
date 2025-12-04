@@ -6,5 +6,6 @@ dependencies = [
     "psycopg2-binary",
     "pymongo",
     "httpx",
+    "pytest",
 ]
 requires-python = "==3.13.9"
