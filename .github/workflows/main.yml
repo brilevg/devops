@@ -49,7 +49,8 @@ jobs:
           echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
       - name: Start PostgreSQL
         run: |
-          docker compose -f docker-compose.postgres.yml up -d
+          docker compose --env-file .env -f docker-compose.postgres.yml up -d
+
 
       # 🟦 Ожидание запуска контейнера Postgres
       - name: Wait for Postgres
@@ -64,11 +65,7 @@ jobs:
       # 🟦 Установка зависимостей и запуск unittest
       - name: Run tests
         run: |
-          export POSTGRES_DB=${{ secrets.DB_NAME }}
-          export POSTGRES_USER=${{ secrets.DB_USER }}
-          export POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
-          export POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}
-          export POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}
+
           echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
           echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env
           echo "POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
