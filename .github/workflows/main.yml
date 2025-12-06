@@ -119,4 +119,4 @@ jobs:
       - name: Run OWASP ZAP DAST scan
         uses: zaproxy/action-full-scan@v0.13.0
         with:
-          target: 'http://localhost:8000'
+          target: 'http://host.docker.internal:8000'
