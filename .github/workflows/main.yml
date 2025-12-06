@@ -62,9 +62,17 @@ jobs:
             echo "Waiting for Postgres..."
             sleep 2
           done
-
-      # 🟦 Установка зависимостей и запуск unittest
+      - name: Get PostgreSQL Container IP Address
+        id: get_ip
+        run: |
+          # Получаем IP-адрес контейнера по его имени и сохраняем его в переменную окружения GITHUB_OUTPUT
+          DB_IP=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ci_postgres_db)
+          echo "POSTGRES_HOST=$DB_IP" >> $GITHUB_OUTPUT
+          echo "Получен IP адрес БД: $DB_IP"
+        # 🟦 Установка зависимостей и запуск unittest
       - name: Run tests
+        env:
+          POSTGRES_HOST: ${{ steps.get_ip.outputs.POSTGRES_HOST }}
         run: |
 
           pip install psycopg2-binary
