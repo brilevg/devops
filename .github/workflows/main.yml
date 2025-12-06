@@ -92,11 +92,6 @@ jobs:
         run: pip install bandit
 
       - name: Run Bandit on a specific file
-        run: bandit app.py -f json -o bandit-report.json -ll
+        run: bandit app.py -f text -ll
 
-      - name: Upload report
-        uses: actions/upload-artifact@v4
-        with:
-          name: bandit-report
-          path: bandit-report.json
           
