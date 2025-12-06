@@ -13,11 +13,11 @@ class TestDatabaseConnection(unittest.TestCase):
         
         # Получаем конфигурацию из переменных окружения
         db_config = {
-            'host': os.environ.get('POSTGRES_HOST', 'localhost'),
-            'port': os.environ.get('POSTGRES_PORT', '5432'),
-            'database': os.environ.get('POSTGRES_DB')
-            'user': os.environ.get('POSTGRES_USER')
-            'password': os.environ.get('POSTGRES_PASSWORD')
+            'host': os.getenv('POSTGRES_HOST', 'localhost'),
+            'port': os.getenv('POSTGRES_PORT', '5432'),
+            'database': os.getenv('POSTGRES_DB')
+            'user': os.getenv('POSTGRES_USER')
+            'password': os.getenv('POSTGRES_PASSWORD')
         }
         
         print(f"Testing PostgreSQL connection with config: {db_config}")
