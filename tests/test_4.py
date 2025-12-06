@@ -9,67 +9,60 @@ class TestDatabaseConnection(unittest.TestCase):
     """Тест подключения к PostgreSQL через переменные окружения"""
 
     def test_connection(self):
-        """Проверка подключения к PostgreSQL с повторными попытками"""
+        """Проверка подключения к PostgreSQL"""
         
-        # Получаем конфигурацию из переменных окружения
+        # Получаем значения переменных окружения
         db_config = {
             'host': os.getenv('POSTGRES_HOST', 'localhost'),
             'port': os.getenv('POSTGRES_PORT', '5432'),
-            'database': os.getenv('POSTGRES_DB')
-            'user': os.getenv('POSTGRES_USER')
+            'database': os.getenv('POSTGRES_DB'),
+            'user': os.getenv('POSTGRES_USER'),
             'password': os.getenv('POSTGRES_PASSWORD')
         }
         
-        print(f"Testing PostgreSQL connection with config: {db_config}")
+        # Отладочная информация
+        print(f"Конфигурация БД: {db_config}")
         
-        # Проверяем обязательные поля (без пароля для логирования)
-        safe_config = db_config.copy()
-        safe_config['password'] = '[REDACTED]' if db_config['password'] else '[MISSING]'
-        print(f"Database config: {safe_config}")
+        # Проверяем, что обязательные переменные установлены
+        if not all([db_config['database'], db_config['user'], db_config['password']]):
+            self.fail("Не все обязательные переменные окружения установлены: "
+                     "POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD")
         
-        max_retries = 10
-        retry_delay = 2
+        # Увеличиваем количество попыток для CI/CD
+        max_retries = 30  # Увеличиваем до 30 попыток для GitHub Actions
+        retry_delay = 2   # 2 секунды между попытками
         
-        for attempt in range(max_retries):
+        for i in range(max_retries):
             try:
-                print(f"Connection attempt {attempt + 1}/{max_retries}...")
+                print(f"Попытка подключения {i+1}/{max_retries}...")
                 
-                # Используем 'database' (работает в psycopg2)
-                conn = psycopg2.connect(
+                # Параметр 'database' работает в psycopg2 (это синоним для 'dbname')
+                self.conn = psycopg2.connect(
                     host=db_config['host'],
                     port=db_config['port'],
-                    database=db_config['database'],
+                    database=db_config['database'],  # Используем 'database' вместо 'dbname'
                     user=db_config['user'],
                     password=db_config['password']
                 )
                 
-                # Проверяем соединение
-                with conn.cursor() as cursor:
-                    cursor.execute("SELECT version()")
-                    version = cursor.fetchone()[0]
-                    print(f"✅ Connected to PostgreSQL: {version.split(',')[0]}")
-                    
-                    # Выполняем тестовый запрос
+                # Проверяем, что соединение действительно работает
+                with self.conn.cursor() as cursor:
                     cursor.execute("SELECT 1")
                     result = cursor.fetchone()
-                    print(f"Test query result: {result[0]}")
+                    print(f"✅ PostgreSQL подключена! Результат запроса: {result[0]}")
                 
-                conn.close()
-                return  # Успех — тест пройден
+                self.conn.close()
+                return  # Успех → тест пройден
                 
             except OperationalError as e:
-                print(f"Attempt {attempt + 1} failed: {e}")
-                if attempt < max_retries - 1:
+                print(f"PostgreSQL загружается... {e}")
+                if i < max_retries - 1:
                     time.sleep(retry_delay)
+                else:
+                    print(f"❌ Все {max_retries} попыток неудачны")
         
-        self.fail(f"Failed to connect to PostgreSQL after {max_retries} attempts")
+        self.fail("Не удалось подключиться к PostgreSQL через переменные окружения")
 
 
 if __name__ == "__main__":
-    # УБЕРИТЕ sys.exit(0) отсюда!
-    # unittest.main() сам управляет кодом выхода
     unittest.main(verbosity=2)
-    
-    # Или, если хотите явный код выхода:
-    # result = unittest.main(exit=False)
-    # sys.exit(0 if result.result.wasSuccessful() else 1)
