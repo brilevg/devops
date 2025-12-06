@@ -37,7 +37,7 @@ jobs:
       
       - name: Patch compose file for CI
         run: |
-          echo "My secret is $secret.POSTGRES_HOST"
+          echo "My secret is ${{ secrets.POSTGRES_HOST }}"
           sed -i '/networks:/,/main:/d' docker-compose.postgres.yml
           sed -i 's/- main//g' docker-compose.postgres.yml
 
