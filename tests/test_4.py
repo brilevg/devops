@@ -8,19 +8,10 @@ class TestDatabaseConnection(unittest.TestCase):
 
     def test_connection(self):
 
-        cfg = {
-            "host": os.getenv("POSTGRES_HOST"),
-            "port": os.getenv("POSTGRES_PORT"),
-            "dbname": os.getenv("POSTGRES_DB"),
-            "user": os.getenv("POSTGRES_USER"),
-            "password": os.getenv("POSTGRES_PASSWORD"),
-        }
-        print(cfg)
-
         # даём PostgreSQL время подняться
         for _ in range(10):
             try:
-                conn = sycopg2.connect(
+                conn = psycopg2.connect(
                     host=os.getenv('POSTGRES_HOST'),
                     port=os.getenv('POSTGRES_PORT'),
                     database=os.getenv('POSTGRES_DB'),
