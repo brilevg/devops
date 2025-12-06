@@ -36,14 +36,7 @@ class TestDatabaseConnection(unittest.TestCase):
             try:
                 print(f"Попытка подключения {i+1}/{max_retries}...")
                 
-                # Параметр 'database' работает в psycopg2 (это синоним для 'dbname')
-                self.conn = psycopg2.connect(
-                    host=db_config['host'],
-                    port=db_config['port'],
-                    database=db_config['database'],  # Используем 'database' вместо 'dbname'
-                    user=db_config['user'],
-                    password=db_config['password']
-                )
+                self.conn = psycopg2.connect(**db_config)
                 
                 # Проверяем, что соединение действительно работает
                 with self.conn.cursor() as cursor:
