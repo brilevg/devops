@@ -106,6 +106,6 @@ jobs:
           sleep 10  # ждём старта сервера
 
       - name: Run OWASP ZAP DAST scan
-        uses: zaproxy/action-full-scan@v1
+        uses: zaproxy/action-full-scan@v0.13.0
         with:
           target: 'http://localhost:8000'
