@@ -94,4 +94,18 @@ jobs:
       - name: Run Bandit on a specific file
         run: bandit app.py -f screen -ll
 
-          
+  test-9:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start application
+        run: |
+          nohup python app.py & 
+          sleep 10  # ждём старта сервера
+
+      - name: Run OWASP ZAP DAST scan
+        uses: zaproxy/action-full-scan@v1
+        with:
+          target: 'http://localhost:8000'
