@@ -12,7 +12,7 @@ class TestDatabaseConnection(unittest.TestCase):
         for _ in range(10):
             try:
                 conn = psycopg2.connect(
-                    host=os.getenv('POSTGRES_HOST'),
+                    host=localhost,
                     port=os.getenv('POSTGRES_PORT'),
                     database=os.getenv('POSTGRES_DB'),
                     user=os.getenv('POSTGRES_USER'),
