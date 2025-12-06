@@ -9,11 +9,11 @@ class TestDatabaseConnection(unittest.TestCase):
     def test_connection(self):
 
         cfg = {
-            "host": os.environ.get("POSTGRES_HOST", "localhost"),
-            "port": os.environ.get("POSTGRES_PORT", 5432),
-            "dbname": os.environ["POSTGRES_DB"],
-            "user": os.environ["POSTGRES_USER"],
-            "password": os.environ["POSTGRES_PASSWORD"],
+            "host": os.getenv("POSTGRES_HOST"),
+            "port": os.getenv("POSTGRES_PORT"),
+            "dbname": os.getenv("POSTGRES_DB"),
+            "user": os.getenv("POSTGRES_USER"),
+            "password": os.getenv("POSTGRES_PASSWORD"),
         }
         print(cfg)
 
