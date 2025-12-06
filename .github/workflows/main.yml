@@ -31,12 +31,7 @@ jobs:
   
   test-4:
     runs-on: ubuntu-latest
-    env:
-      POSTGRES_DB: ${{ vars.POSTGRES_DB }}
-      POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-      POSTGRES_PASSWORD: ${{ vars.DB_PASSWORD }}
-      POSTGRES_HOST: ${{ vars.POSTGRES_HOST }}
-      POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
+    environment: secret
     steps:
       - uses: actions/checkout@v4
       
