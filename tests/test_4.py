@@ -20,15 +20,15 @@ class TestDatabaseConnection(unittest.TestCase):
         # даём PostgreSQL время подняться
         for _ in range(10):
             try:
-                conn = psycopg2.connect(
-            host= os.getenv("POSTGRES_HOST"),
-            port= os.getenv("POSTGRES_PORT"),
-            database= os.getenv("POSTGRES_DB"),
-            user= os.getenv("POSTGRES_USER"),
-            password= os.getenv("POSTGRES_PASSWORD")
+                conn = sycopg2.connect(
+                    host=os.getenv('POSTGRES_HOST'),
+                    port=os.getenv('POSTGRES_PORT'),
+                    database=os.getenv('POSTGRES_DB'),
+                    user=os.getenv('POSTGRES_USER'),
+                    password=os.getenv('POSTGRES_PASSWORD')
                 )
                 conn.close()
-                return  # Успех → тест пройден
+                return 1 # Успех → тест пройден
             except Exception:
                 time.sleep(1)
 
