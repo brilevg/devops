@@ -34,7 +34,7 @@ jobs:
           config: "p/ci"
 
   pysa:
-    name: Pysa (Pyre) SAST
+    name: Pysa (Static Taint Analysis)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -43,11 +43,17 @@ jobs:
         run: |
           pip install pyre-check
 
-      - name: Initialize Pyre
+      - name: Create Pyre Configuration
         run: |
-          pyre init
+          cat > .pyre_configuration << 'EOF'
+          {
+            "source_directories": ["."],
+            "taint_models_path": ["./taint"],
+            "exclude": ["tests/"]
+          }
+          EOF
 
-      - name: Run Pysa
+      - name: Run Pysa (Taint Analysis)
         run: |
           pyre analyze --save-results-to pysa-results
 
