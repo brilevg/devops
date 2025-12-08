@@ -33,22 +33,27 @@ jobs:
         with:
           config: "p/ci"
 
-  horusec:
-    name: Horusec SAST
+  snyk-code:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Horusec CLI
+      - name: Install Snyk CLI
         run: |
-          curl -fsSL https://raw.githubusercontent.com/ZupIT/horusec/master/scripts/install-cli.sh | bash
+          curl -sL https://static.snyk.io/cli/latest/snyk-linux -o snyk
+          chmod +x snyk
+          sudo mv snyk /usr/local/bin/
 
-      - name: Run Horusec scan
+      - name: Authenticate Snyk (Device Flow)
         run: |
-          horusec start -p . --json-output-file horusec-report.json || true
+          snyk auth --dev
 
-      - name: Upload report
+      - name: Run Snyk Code SAST
+        run: |
+          snyk code test --json-file-output=snyk-code-report.json || true
+
+      - name: Upload Snyk report
         uses: actions/upload-artifact@v4
         with:
-          name: horusec-report
-          path: horusec-report.json
+          name: snyk-code-report
+          path: snyk-code-report.json
