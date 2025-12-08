@@ -129,7 +129,7 @@ jobs:
         uses: zaproxy/action-baseline@v0.13.0
         with:
           target: 'http://localhost:8000'
-          report_path: './zap_report.html'
+          cmd_options: '-J zap_report.json -r zap_report.html'
           upload_sarif: false
           upload_artifact: false
         
