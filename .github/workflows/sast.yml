@@ -23,7 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: returntocorp/semgrep-action@v1
-
+        with:
+          config: p/ci
   codeql:
     runs-on: ubuntu-latest
     permissions:
