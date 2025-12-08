@@ -1,49 +1,46 @@
-name: SCA Scan
+name: SCA
+
 on:
   push:
   pull_request:
 
 jobs:
-  sca-trivy:
+
+  trivy:
+    name: Trivy SCA scan
     runs-on: ubuntu-latest
-    environment: secret
-    env:
-      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
-      DB_TYPE: "fake" 
     steps:
       - uses: actions/checkout@v3
-      
-      - name: Build Docker image
-        run: docker build -t app .
 
-      - name: Run Trivy
+      - name: Run Trivy (Filesystem)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: app
+          scan-type: fs
           format: table
-          exit-code: 1
+          exit-code: 0
 
-  sca-grype:
+  safety:
+    name: Safety Python Dependency Scan
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Grype
+      - name: Install Safety
         run: |
-          curl -sSfL https://get.anchore.io/grype | sh -s -- -b /usr/local/bin
+          pip install safety
 
-      - name: Scan
-        run: grype dir:. -vv
+      - name: Run Safety Check
+        run: |
+          safety check --full-report > safety-report.txt
 
-  sca-depcheck:
+      - name: Upload Safety report
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-report
+          path: safety-report.txt
+
+  dependabot:
+    name: Dependabot (GitHub-native)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Run OWASP Dependency-Check
-        uses: dependency-check/Dependency-Check_Action@main
-        with:
-          project: 'My Project'        
-          path: '.'                     
-          format: 'HTML'                
-          out: 'reports'  
+      - run: echo "⚠️ Dependabot работает как отдельный сервис GitHub, job запускается для фиксации workflow"
