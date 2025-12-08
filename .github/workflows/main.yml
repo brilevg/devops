@@ -95,6 +95,9 @@ jobs:
         run: bandit app.py -f screen -ll
 
   test-9:
+    permissions:
+      issues: write
+      contents: read
     runs-on: ubuntu-latest
     environment: secret
     env:
