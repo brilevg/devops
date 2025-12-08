@@ -1,0 +1,94 @@
+name: DAST Scan
+on:
+  workflow_dispatch:
+
+jobs:
+  zap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start application
+        run: |
+          # Запускаем приложение в фоне на порту 8000
+          nohup python -m flask run --host=0.0.0.0 --port=8000 > app.log 2>&1 &
+          # Ждем, пока приложение запустится
+          sleep 10
+          # Проверяем, что приложение работает
+          curl -f http://localhost:8000 || true
+
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.13.0
+        with:
+          target: http://localhost:8000
+
+  nikto:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start application
+        run: |
+          # Запускаем приложение в фоне на порту 8000
+          nohup python -m flask run --host=0.0.0.0 --port=8000 > app.log 2>&1 &
+          # Ждем, пока приложение запустится
+          sleep 10
+          # Проверяем, что приложение работает
+          curl -f http://localhost:8000 || true
+
+      - name: Nikto scan
+        run: |
+          sudo apt install nikto -y
+          nikto -h http://localhost:8000
+
+  nuclei:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.9"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Start application
+        run: |
+          # Запускаем приложение в фоне на порту 8000
+          nohup python -m flask run --host=0.0.0.0 --port=8000 > app.log 2>&1 &
+          # Ждем, пока приложение запустится
+          sleep 10
+          # Проверяем, что приложение работает
+          curl -f http://localhost:8000 || true
+
+      - name: Install nuclei
+        run: |
+          curl -s https://api.github.com/repos/projectdiscovery/nuclei/releases/latest \
+          | grep browser_download_url | grep linux_amd64.zip | cut -d '"' -f 4 \
+          | wget -i -
+          unzip nuclei_*_linux_amd64.zip
+          sudo mv nuclei /usr/local/bin/
+
+      - name: Run nuclei
+        run: nuclei -u http://localhost:8000
