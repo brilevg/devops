@@ -19,7 +19,7 @@ jobs:
           image-ref: app
           format: table
           exit-code: 1
-          scan-type: fs
+
 
 
   safety:
