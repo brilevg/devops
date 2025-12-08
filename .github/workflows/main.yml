@@ -99,7 +99,7 @@ jobs:
     environment: secret
     env:
       FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
-      DB_TYPE: "fake" 
+      DB_TYPE: "fake"
 
     steps:
       - name: Checkout code
@@ -115,19 +115,41 @@ jobs:
 
       - name: Start application
         run: |
-          nohup python app.py &
+          # Запускаем приложение в фоне на порту 8000
+          nohup python -m flask run --host=0.0.0.0 --port=8000 > app.log 2>&1 &
+        # Ждем, пока приложение запустится
           sleep 10
+        # Проверяем, что приложение работает
+          curl -f http://localhost:8000 || true
 
       - name: Run OWASP ZAP DAST scan
         uses: zaproxy/action-full-scan@v0.13.0
         with:
           target: 'http://localhost:8000'
+        # Добавляем параметры для сохранения отчета
+          rules_file_name: '.zap/rules.tsv'
+          alert_level: 'Medium'
+          cmd_options: '-a'
 
-      - name: List files
-        run: ls -R .
+      - name: Stop application
+        run: |
+          pkill -f "flask run" || true
 
+      - name: List files (for debugging)
+        run: |
+          echo "Current directory structure:"
+          find . -name "*.html" -o -name "*.json" -o -name "*.xml" | head -20
+          echo "ZAP reports likely location:"
+          ls -la zap_* 2>/dev/null || echo "No zap_* files found"
+          ls -la *.html 2>/dev/null || echo "No HTML files found"
+  
       - name: Upload DAST report
         uses: actions/upload-artifact@v4
         with:
           name: dast-report
-          path: zap_report.html
+          path: |
+            zap_report.html
+            zap_*.html
+            *.html
+          if-no-files-found: warn
+          retention-days: 30
