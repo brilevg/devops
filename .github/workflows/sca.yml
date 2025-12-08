@@ -33,7 +33,7 @@ jobs:
           curl -sSfL https://get.anchore.io/grype | sh -s -- -b /usr/local/bin
 
       - name: Scan
-        run: grype .
+        run: grype dir:. -vv
 
   sca-depcheck:
     runs-on: ubuntu-latest
@@ -42,3 +42,7 @@ jobs:
 
       - name: Run OWASP Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
+        with:
+          path: '.'         
+          format: 'HTML'         
+          output: 'reports'
