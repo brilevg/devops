@@ -100,29 +100,34 @@ jobs:
     env:
       FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
       DB_TYPE: "fake" 
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.13.9"
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
+
       - name: Start application
         run: |
-          nohup python app.py & 
-          sleep 10  # ждём старта сервера
+          nohup python app.py &
+          sleep 10
 
       - name: Run OWASP ZAP DAST scan
         uses: zaproxy/action-full-scan@v0.13.0
         with:
-          target: 'http://host.docker.internal:8000'
-      
+          target: 'http://localhost:8000'
+
+      - name: List files
+        run: ls -R .
+
       - name: Upload DAST report
         uses: actions/upload-artifact@v4
         with:
           name: dast-report
-          path: zap-report.html
+          path: zap_report.html
