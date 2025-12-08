@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Safety Check
         run: |
-          safety check --full-report > safety-report.txt
+          safety check --full-report --file requirements.txt > safety-report.txt
 
       - name: Upload Safety report
         uses: actions/upload-artifact@v4
