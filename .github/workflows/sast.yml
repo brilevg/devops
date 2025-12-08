@@ -7,7 +7,7 @@ on:
 jobs:
 
   bandit:
-    name: Bandit SAST
+    name: Bandit 
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,7 +23,7 @@ jobs:
 
 
   semgrep:
-    name: Semgrep SAST
+    name: Semgrep
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -33,27 +33,35 @@ jobs:
         with:
           config: "p/ci"
 
-  snyk-code:
+  codeql:
+    name: CodeQL
     runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write  # нужно для CodeQL alerts
+
+    strategy:
+      matrix:
+        language: [ 'python' ]  # язык проекта
+
     steps:
-      - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Install Snyk CLI
-        run: |
-          curl -sL https://static.snyk.io/cli/latest/snyk-linux -o snyk
-          chmod +x snyk
-          sudo mv snyk /usr/local/bin/
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
 
-      - name: Authenticate Snyk (Device Flow)
-        run: |
-          snyk auth --dev
+    - name: Build project (если нужно)
+      run: |
+        # Для Python можно пропустить, если нет сборки
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-      - name: Run Snyk Code SAST
-        run: |
-          snyk code test --json-file-output=snyk-code-report.json || true
-
-      - name: Upload Snyk report
-        uses: actions/upload-artifact@v4
-        with:
-          name: snyk-code-report
-          path: snyk-code-report.json
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{ matrix.language }}"
