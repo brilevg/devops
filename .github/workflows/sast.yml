@@ -16,7 +16,7 @@ jobs:
       - name: Install Bandit
         run: pip install bandit
       - name: Run Bandit on a specific file
-        run: bandit . -f screen -ll
+        run: bandit -r . -f screen -ll
 
   semgrep:
     runs-on: ubuntu-latest
