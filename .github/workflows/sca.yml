@@ -33,7 +33,7 @@ jobs:
           curl -sSfL https://get.anchore.io/grype | sh -s -- -b /usr/local/bin
 
       - name: Scan
-        run: grype file:requirements.txt -vv
+        run: grype dir:. -vv
 
   sca-depcheck:
     runs-on: ubuntu-latest
