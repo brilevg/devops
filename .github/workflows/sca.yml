@@ -11,13 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
+      - name: Build Docker image
+        run: docker build -t app .
       - name: Run Trivy (Filesystem)
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: fs
+          image-ref: app
           format: table
-          exit-code: 0
+          exit-code: 1
+          scan-type: fs
+
 
   safety:
     name: Safety Python Dependency Scan
