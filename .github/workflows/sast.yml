@@ -1,42 +1,58 @@
-name: SAST Scan
+name: SAST
+
 on:
   push:
   pull_request:
 
 jobs:
+
   bandit:
+    name: Bandit SAST
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13.9"
+      - uses: actions/checkout@v3
+
       - name: Install Bandit
-        run: pip install bandit
-      - name: Run Bandit on a specific file
-        run: bandit -r . -f screen -ll
+        run: |
+          pip install bandit
+
+      - name: Run Bandit
+        run: |
+          bandit -r . -f screen -ll
+
+
 
   semgrep:
+    name: Semgrep SAST
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: returntocorp/semgrep-action@v1
+
+      - name: Semgrep Scan
+        uses: returntocorp/semgrep-action@v1
         with:
-          config: p/ci
-  codeql:
+          config: "p/ci"
+
+  pysa:
+    name: Pysa (Pyre) SAST
     runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      actions: write
-      contents: read
     steps:
       - uses: actions/checkout@v3
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+
+      - name: Install Pyre
+        run: |
+          pip install pyre-check
+
+      - name: Initialize Pyre
+        run: |
+          pyre init
+
+      - name: Run Pysa
+        run: |
+          pyre analyze --save-results-to pysa-results
+
+      - name: Upload Pysa report
+        uses: actions/upload-artifact@v4
         with:
-          languages: python
-          queries: security-extended,security-and-quality
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+          name: pysa-results
+          path: pysa-results
