@@ -1,0 +1,44 @@
+name: Nginx Log Tests (Loki Stack)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-log-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start Loki + Promtail + Grafana + Nginx
+        run: |
+          docker compose -f log/docker-compose.yml up -d
+          sleep 8
+
+      - name: Generate anomalous requests
+        run: |
+          # 404 spam
+          for i in {1..25}; do
+            curl -s http://localhost:8080/notfound$i > /dev/null || true
+          done
+          
+          # XSS
+          curl "http://localhost:8080/?q=<script>alert(1)</script>" || true
+
+          # SQL injection
+          curl "http://localhost:8080/?id=1' OR '1'='1" || true
+
+          # Bad user agent
+          curl -A "sqlmap/1.5" http://localhost:8080/ || true
+
+      - name: Dump nginx logs
+        run: |
+          mkdir -p out
+          docker cp $(docker ps -qf "name=logging-nginx"):/var/log/nginx out/
+
+      - name: Upload nginx logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: nginx-logs
+          path: out/
