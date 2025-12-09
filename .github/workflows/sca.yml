@@ -44,6 +44,7 @@ jobs:
 
   depcheck-scan:
     runs-on: ubuntu-latest
+    environment: secret
     steps:
       - uses: actions/checkout@v4
 
