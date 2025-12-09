@@ -7,7 +7,7 @@ on:
 jobs:
 
   trivy:
-    name: Trivy SCA scan
+    name: Trivy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,7 +23,7 @@ jobs:
 
 
   safety:
-    name: Safety Python Dependency Scan
+    name: Safety
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -42,26 +42,37 @@ jobs:
           name: safety-report
           path: safety-report.txt
 
-  depchecktest:
+  pip-audit:
+    name: Pip-audit
     runs-on: ubuntu-latest
-    name: depecheck_test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
 
-      - name: Depcheck
-        uses: dependency-check/Dependency-Check_Action@main
-        id: Depcheck
-        with:
-          project: 'test'
-          path: '.'
-          format: 'HTML'
-          out: 'reports' 
-          args: >
-            --enableRetired
-            --enableExperimental
-      - name: Upload Test results
-        uses: actions/upload-artifact@master
-        with:
-           name: Depcheck report
-           path: ${{github.workspace}}/reports
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install project dependencies
+      run: |
+        if [ -f requirements.txt ]; then
+          pip install -r requirements.txt
+        elif [ -f pyproject.toml ]; then
+          pip install .
+        fi
+
+    - name: Install pip-audit
+      run: pip install pip-audit
+
+    - name: Run pip-audit (generate HTML report)
+      run: |
+        mkdir -p reports
+        pip-audit --format html --output reports/pip-audit-report.html
+
+    - name: Upload report artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: pip-audit-report
+        path: reports/pip-audit-report.html
