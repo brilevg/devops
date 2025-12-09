@@ -67,6 +67,10 @@ jobs:
 
   nikto:
     runs-on: ubuntu-latest
+    environment: secret
+    env:
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      DB_TYPE: "fake"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,6 +99,10 @@ jobs:
 
   nuclei:
     runs-on: ubuntu-latest
+    environment: secret
+    env:
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      DB_TYPE: "fake"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
