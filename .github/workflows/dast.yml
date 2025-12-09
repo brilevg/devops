@@ -95,8 +95,16 @@ jobs:
       - name: Nikto scan
         run: |
           sudo apt install nikto -y
-          nikto -h http://localhost:8001
-
+          nikto -h http://localhost:8001 -Format csv -o nikto-report.csv
+        
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: nikto-report
+          path: |
+            nikto-report.csv
+          retention-days: 7
+          
   nuclei:
     runs-on: ubuntu-latest
     environment: secret
@@ -134,4 +142,11 @@ jobs:
 
 
       - name: Run nuclei
-        run: nuclei -u http://localhost:8002
+        run: nuclei -u http://localhost:8002 -o nuclei-report.txt -silent
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-security-reports
+          path: |
+            nuclei-report.txt
+          retention-days: 7
