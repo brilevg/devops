@@ -126,8 +126,11 @@ jobs:
 
       - name: Install nuclei
         run: |
-           curl -sL https://raw.githubusercontent.com/projectdiscovery/nuclei/master/install.sh | sh
-           sudo mv nuclei /usr/local/bin/
+          wget https://github.com/projectdiscovery/nuclei/releases/download/v3.6.0/nuclei_3.6.0_linux_amd64.zip
+          mv nuclei_3.6.0_linux_amd64.zip /tmp/
+          cd /tmp
+          unzip -o nuclei_3.6.0_linux_amd64.zip
+          mv nuclei /usr/local/bin/
 
 
       - name: Run nuclei
