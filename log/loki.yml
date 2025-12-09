@@ -13,6 +13,8 @@ ingester:
   chunk_idle_period: 5m
   chunk_target_size: 1536000
   max_transfer_retries: 0
+  wal:
+    dir: /wal
 
 schema_config:
   configs:
@@ -29,8 +31,13 @@ storage_config:
     active_index_directory: /tmp/loki/tsdb/index
     cache_location: /tmp/loki/tsdb/cache
   filesystem:
-    directory: /tmp/loki/chunks
+    directory: /tmp/loki/tsdb
 
 limits_config:
   ingestion_burst_size_mb: 10
   ingestion_rate_mb: 10
+
+compactor:
+  working_directory: /tmp/loki/compactor
+  shared_store: filesystem
+  retention_enabled: false
