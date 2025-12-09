@@ -43,7 +43,6 @@ jobs:
           path: safety-report.txt
 
   pip-audit:
-    name: Pip-audit
     runs-on: ubuntu-latest
 
     steps:
@@ -66,13 +65,13 @@ jobs:
     - name: Install pip-audit
       run: pip install pip-audit
 
-    - name: Run pip-audit (generate HTML report)
+    - name: Run pip-audit (Markdown report)
       run: |
         mkdir -p reports
-        pip-audit --format html --output reports/pip-audit-report.html
+        pip-audit --format markdown --output reports/pip-audit-report.md
 
     - name: Upload report artifact
       uses: actions/upload-artifact@v4
       with:
         name: pip-audit-report
-        path: reports/pip-audit-report.html
+        path: reports/pip-audit-report.md
