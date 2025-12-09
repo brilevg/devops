@@ -81,17 +81,17 @@ jobs:
 
       - name: Start application
         run: |
-          # Запускаем приложение в фоне на порту 8000
-          nohup python -m flask run --host=0.0.0.0 --port=8000 > app.log 2>&1 &
+          # Запускаем приложение в фоне на порту 8001
+          nohup python -m flask run --host=0.0.0.0 --port=8001 > app.log 2>&1 &
           # Ждем, пока приложение запустится
           sleep 10
           # Проверяем, что приложение работает
-          curl -f http://localhost:8000 || true
+          curl -f http://localhost:8001 || true
 
       - name: Nikto scan
         run: |
           sudo apt install nikto -y
-          nikto -h http://localhost:8000
+          nikto -h http://localhost:8001
 
   nuclei:
     runs-on: ubuntu-latest
@@ -109,12 +109,12 @@ jobs:
 
       - name: Start application
         run: |
-          # Запускаем приложение в фоне на порту 8000
-          nohup python -m flask run --host=0.0.0.0 --port=8000 > app.log 2>&1 &
+          # Запускаем приложение в фоне на порту 8002
+          nohup python -m flask run --host=0.0.0.0 --port=8002 > app.log 2>&1 &
           # Ждем, пока приложение запустится
           sleep 10
           # Проверяем, что приложение работает
-          curl -f http://localhost:8000 || true
+          curl -f http://localhost:8002 || true
 
       - name: Install nuclei
         run: |
@@ -125,4 +125,4 @@ jobs:
           sudo mv nuclei /usr/local/bin/
 
       - name: Run nuclei
-        run: nuclei -u http://localhost:8000
+        run: nuclei -u http://localhost:8002
