@@ -42,23 +42,27 @@ jobs:
           name: safety-report
           path: safety-report.txt
 
-  depcheck-scan:
+  depchecktest:
     runs-on: ubuntu-latest
-    environment: secret
+    name: depecheck_test
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Run OWASP Dependency-Check
-        uses: dependency-check/Dependency-Check_Action@6.5.3
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Build project with Maven
+        run: mvn clean install
+      - name: Depcheck
+        uses: dependency-check/Dependency-Check_Action@main
+        id: Depcheck
         with:
-          project: project
+          project: 'test'
           path: '.'
           format: 'HTML'
-          out: 'reports'
-          args: '--ossindexUsername ${{ secrets.OSSINDEX_USERNAME }} --ossindexToken ${{ secrets.OSSINDEX_TOKEN }} --disableRetireJS'
-          
-      - name: Upload report as artifact
-        uses: actions/upload-artifact@v4
+          out: 'reports' 
+          args: >
+            --failOnCVSS 7
+            --enableRetired
+      - name: Upload Test results
+        uses: actions/upload-artifact@master
         with:
-          name: dependency-check-report
-          path: reports/"
+           name: Depcheck report
+           path: ${{github.workspace}}/reports
