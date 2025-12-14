@@ -120,7 +120,7 @@ done
 # 6. Path Traversal
 echo -e "\n6. Попытки Path Traversal..."
 PATHS=(
-    "../../../etc/passwd"
+    "../../etc/passwd"
     "..\\..\\..\\windows\\system32\\drivers\\etc\\hosts"
     "/proc/self/environ"
     "/.git/config"
