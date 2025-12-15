@@ -122,6 +122,33 @@ jobs:
         run: |
           pip install psycopg2-binary
           python -m unittest discover -s tests -p "test_4.py"
+  test-5:
+    runs-on: ubuntu-latest
+    environment: secret
+    env:
+      FLASK_SECRET_KEY: ${{ secrets.FLASK_SECRET_KEY }}
+      DB_TYPE: "fake" 
+    steps:
+      # 1. Клонируем репозиторий
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Добавляем ключи
+      - name: Add keys
+        run: sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx/ssl.key -out nginx/ssl.crt -subj "/C=RU/ST=Prim/L=VLAD/O=FEFU/OU=STUDENT/CN=localhost"
+
+      # 3. Сборка Docker-контейнера
+      - name: Build Docker image
+        id: docker_build
+        run: |
+          compose.sh up --build
+          sleep 10
+          
+      # 4. Проверка успешности сборки (опционально тестируем запуск контейнера)
+      - name: Test Docker container
+        run: |
+          curl -v -k -X GET http://localhost:443/api/books
+  
   test-7:
     runs-on: ubuntu-latest
 
