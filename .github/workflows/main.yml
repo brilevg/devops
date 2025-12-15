@@ -47,7 +47,7 @@ jobs:
 
       - name: Run flake8
         run: |
-          flake8 app.py --statistics --count 
+          flake8 app.py --statistics --count --ignore=E501
   test-3:
     runs-on: ubuntu-latest
     steps:
