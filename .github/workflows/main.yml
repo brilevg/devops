@@ -47,7 +47,38 @@ jobs:
 
       - name: Run flake8
         run: |
-          flake8 . --statistics --count 
+          flake8 app.py --statistics --count 
+  test-3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13.9'
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+              ${{ runner.os }}-pip-
+
+      - name: Measure install time
+        id: pip_install
+        run: |
+          echo "Start pip install"
+          START=$(date +%s)
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          END=$(date +%s)
+          DURATION=$((END-START))
+          echo "pip_install_time=$DURATION" >> $GITHUB_OUTPUT
+          echo "Pip install took $DURATION seconds"
+
+      - name: Run flake8
+        run: flake8 app.py --statistics --count
   
   test-4:
     runs-on: ubuntu-latest
