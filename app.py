@@ -242,7 +242,7 @@ class MongoDB:
                     book_data['created_at'] = book['created_at'].isoformat() if isinstance(book['created_at'], datetime) else str(book['created_at'])
                 if 'updated_at' in book:
                     book_data['updated_at'] = book['updated_at'].isoformat() if isinstance(book['updated_at'], datetime) else str(book['updated_at'])
-                
+
                 return book_data
             return None
         except (InvalidId, Exception) as e:
