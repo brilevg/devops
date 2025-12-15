@@ -137,13 +137,27 @@ jobs:
       - name: Add keys
         run: sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx/ssl.key -out nginx/ssl.crt -subj "/C=RU/ST=Prim/L=VLAD/O=FEFU/OU=STUDENT/CN=localhost"
 
+      - name: Make compose.sh executable
+        run: chmod +x compose.sh
       # 3. Сборка Docker-контейнера
       - name: Build Docker image
         id: docker_build
         run: |
-          compose.sh up --build
+          ./compose.sh up --build -d
           sleep 10
-          
+      - name: Wait for service to be ready
+        run: |
+         for i in {1..15}; do
+            if curl -k -s http://localhost:443/api/books > /dev/null; then
+              echo "Service is up!"
+              exit 0
+            else
+              echo "Waiting for service..."
+              sleep 2
+            fi
+          done
+          echo "Service did not start in time"
+          exit 1
       # 4. Проверка успешности сборки (опционально тестируем запуск контейнера)
       - name: Test Docker container
         run: |
