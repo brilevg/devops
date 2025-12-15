@@ -273,7 +273,6 @@ jobs:
           retention-days: 30
 
   test-10:
-    name: Trivy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
