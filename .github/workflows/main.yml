@@ -165,7 +165,23 @@ jobs:
       - name: Test Docker container
         run: |
           curl -v -k -X GET https://localhost:443/api/books
-  
+
+  test-6:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Safety
+        run: |
+          pip install safety
+      - name: Run Safety Check
+        run: |
+          safety check --full-report --file requirements.txt > safety-report.txt
+      - name: Upload Safety report
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-report
+          path: safety-report.txt
   test-7:
     runs-on: ubuntu-latest
 
