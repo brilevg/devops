@@ -164,7 +164,7 @@ jobs:
       # 4. Проверка успешности сборки (опционально тестируем запуск контейнера)
       - name: Test Docker container
         run: |
-          curl -v -k -X GET http://localhost:443/api/books
+          curl -v -k -X GET https://localhost:443/api/books
   
   test-7:
     runs-on: ubuntu-latest
