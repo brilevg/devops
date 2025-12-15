@@ -29,7 +29,6 @@ jobs:
       - name: Run unittest tests
         run: python -m unittest discover -s tests -p "test_1.py"
   test-2:
-    name: Lint Python code
     runs-on: ubuntu-latest
 
     steps:
@@ -48,7 +47,7 @@ jobs:
 
       - name: Run flake8
         run: |
-          flake8 src --statistics --count --exit-zero
+          flake8 . --statistics --count 
   
   test-4:
     runs-on: ubuntu-latest
