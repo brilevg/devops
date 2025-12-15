@@ -176,12 +176,8 @@ jobs:
           pip install safety
       - name: Run Safety Check
         run: |
-          safety check --full-report --file requirements.txt > safety-report.txt
-      - name: Upload Safety report
-        uses: actions/upload-artifact@v4
-        with:
-          name: safety-report
-          path: safety-report.txt
+          safety check --full-report
+
   test-7:
     runs-on: ubuntu-latest
 
