@@ -196,6 +196,19 @@ jobs:
       - name: Run Bandit on a specific file
         run: bandit app.py -f screen -ll
 
+  test-8:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --source . --no-git --verbose
+
+
   test-9:
     permissions:
       issues: write
