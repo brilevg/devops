@@ -20,8 +20,10 @@ class FakeDB:
         self.books = []
         self.next_id = 1
         print("FakeDB работает")
+    
     def get_all_books(self):
         return self.books.copy()
+    
     def get_book(self, book_id):
         try:
             book_id = int(book_id)
@@ -32,6 +34,7 @@ class FakeDB:
             if book['id'] == book_id:
                 return book
         return None
+    
     def create_book(self, book_data):
         book = {
             'id': self.next_id,
@@ -44,6 +47,7 @@ class FakeDB:
         self.books.append(book)
         self.next_id += 1
         return book
+    
     def update_book(self, book_id, book_data):
         try:
             book_id = int(book_id)
@@ -61,10 +65,11 @@ class FakeDB:
                 })
                 return book
         return None
+    
     def delete_book(self, book_id):
         try:
             book_id = int(book_id)
-        except:
+        except Exception:
             return None
             
         for i, book in enumerate(self.books):
@@ -94,6 +99,7 @@ class PostgresDB:
                 if i < max_retries - 1:
                     time.sleep(2)
         raise Exception("PostgreSQL не подключилась")
+    
     def _init_db(self):
         cur = self.conn.cursor()
         cur.execute('''
@@ -109,6 +115,7 @@ class PostgresDB:
         ''')
         self.conn.commit()
         cur.close()
+    
     def get_all_books(self):
         cur = self.conn.cursor()
         cur.execute('SELECT * FROM books ORDER BY id')
@@ -125,6 +132,7 @@ class PostgresDB:
             })
         cur.close()
         return books
+    
     def get_book(self, book_id):
         cur = self.conn.cursor()
         cur.execute('SELECT * FROM books WHERE id = %s', (book_id,))
@@ -141,6 +149,7 @@ class PostgresDB:
                 'updated_at': row[6].isoformat() if row[6] else None
             }
         return None
+    
     def create_book(self, book_data):
         cur = self.conn.cursor()
         cur.execute(
@@ -151,6 +160,7 @@ class PostgresDB:
         self.conn.commit()
         cur.close()
         return self.get_book(book_id)
+    
     def update_book(self, book_id, book_data):
         cur = self.conn.cursor()
         cur.execute(
@@ -160,6 +170,7 @@ class PostgresDB:
         self.conn.commit()
         cur.close()
         return self.get_book(book_id)
+    
     def delete_book(self, book_id):
         book = self.get_book(book_id)
         if book:
@@ -192,6 +203,7 @@ class MongoDB:
                 if i < max_retries - 1:
                     time.sleep(2)
         raise Exception("MongoDB не запустилась")
+    
     def get_all_books(self):
         try:
             books_cursor = self.books.find().sort('_id', 1)
@@ -214,6 +226,7 @@ class MongoDB:
         except Exception as e:
             print(f"Ошибка: {e}")
             return []
+    
     def get_book(self, book_id):
         try:
             book = self.books.find_one({'_id': ObjectId(book_id)})
@@ -235,6 +248,7 @@ class MongoDB:
         except (InvalidId, Exception) as e:
             print(f"Ошибка: {e}")
             return None
+    
     def create_book(self, book_data):
         try:
             book_doc = {
@@ -249,6 +263,7 @@ class MongoDB:
         except Exception as e:
             print(f"Ошибка: {e}")
             return None
+    
     def update_book(self, book_id, book_data):
         try:
             update_data = {
@@ -274,6 +289,7 @@ class MongoDB:
         except (InvalidId, Exception) as e:
             print(f"Ошибка: {e}")
             return None
+    
     def delete_book(self, book_id):
         try:
             book = self.get_book(book_id)
