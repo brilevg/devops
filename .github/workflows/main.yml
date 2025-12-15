@@ -135,7 +135,7 @@ jobs:
 
       # 2. Добавляем ключи
       - name: Add keys
-        run: sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx/ssl.key -out nginx/ssl.crt -subj "/C=RU/ST=Prim/L=VLAD/O=FEFU/OU=STUDENT/CN=localhost"
+        run: sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/ssl.key -out /etc/nginx/ssl/ssl.crt -subj "/C=RU/ST=Prim/L=VLAD/O=FEFU/OU=STUDENT/CN=localhost"
       - name: Create temporary .env file
         run: |
           echo "DB_TYPE=fake" > .env
