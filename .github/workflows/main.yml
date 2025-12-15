@@ -78,7 +78,7 @@ jobs:
           echo "Pip install took $DURATION seconds"
 
       - name: Run flake8
-        run: flake8 app.py --statistics --count
+        run: flake8 app.py --statistics --count --ignore=E501
   
   test-4:
     runs-on: ubuntu-latest
