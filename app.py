@@ -71,7 +71,7 @@ class FakeDB:
             book_id = int(book_id)
         except Exception:
             return None
-            
+
         for i, book in enumerate(self.books):
             if book['id'] == book_id:
                 return self.books.pop(i)
@@ -220,7 +220,7 @@ class MongoDB:
                     book_data['created_at'] = book['created_at'].isoformat() if isinstance(book['created_at'], datetime) else str(book['created_at'])
                 if 'updated_at' in book:
                     book_data['updated_at'] = book['updated_at'].isoformat() if isinstance(book['updated_at'], datetime) else str(book['updated_at'])
-                
+
                 books.append(book_data)
             return books
         except Exception as e:
@@ -273,10 +273,10 @@ class MongoDB:
                 'description': book_data.get('description', ''),
                 'updated_at': datetime.now()
             }
-          
+
             # Удаляем None значения
             update_data = {k: v for k, v in update_data.items() if v is not None}
-            
+
             result = self.books.update_one(
                 {'_id': ObjectId(book_id)},
                 {'$set': update_data}
@@ -305,6 +305,7 @@ class MongoDB:
             print(f"Ошибка: {e}")
             return None
 
+
 # Инициализация БД
 def get_db():
     if DB_TYPE == 'postgres':
@@ -316,6 +317,7 @@ def get_db():
 
 
 db = get_db()
+
 
 # HTML
 @app.route('/')
@@ -377,7 +379,7 @@ def book_edit(book_id):
         except Exception as e:
             flash(f'Ошибка при обновлении книги: {str(e)}', 'error')
             return redirect(url_for('book_list'))
-    
+
     book = db.get_book(book_id)
     if not book:
         flash('Книга не найдена', 'error')
@@ -397,6 +399,7 @@ def book_delete(book_id):
     except Exception as e:
         flash(f'Ошибка при удалении книги: {str(e)}', 'error')
     return redirect(url_for('book_list'))
+
 
 # API
 @app.route('/api/books', methods=['GET'])
