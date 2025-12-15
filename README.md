@@ -61,7 +61,7 @@ MONGO_DB=book_db
 
 Увидите список всех книг: 
 ```bash
-curl -v -k -X GET http://localhost:443/api/books
+curl -v -k -X GET https://localhost:443/api/books
 ```
 
 Создайте новую книгу:
@@ -96,7 +96,7 @@ curl -v -k -X PUT https://localhost:443/api/books/{id} \
 
 Удалите книгу:
 ```bash
-curl -v -k -X DELETE http://localhost:8000/api/books/{id}
+curl -v -k -X DELETE https://localhost:443/api/books/{id}
 ```
 
 ## Gitlab
@@ -135,6 +135,7 @@ Gitlab запускает не менее 10 минут.
 ```bash
 curl -k -I https://gitlab.local/users/sign_in
 ```
+
 
 
 
