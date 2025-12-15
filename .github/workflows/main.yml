@@ -65,18 +65,6 @@ jobs:
           restore-keys: |
               ${{ runner.os }}-pip-
 
-      - name: Measure install time
-        id: pip_install
-        run: |
-          echo "Start pip install"
-          START=$(date +%s)
-          pip install --upgrade pip
-          pip install -r requirements.txt
-          END=$(date +%s)
-          DURATION=$((END-START))
-          echo "pip_install_time=$DURATION" >> $GITHUB_OUTPUT
-          echo "Pip install took $DURATION seconds"
-
       - name: Run flake8
         run: flake8 app.py --statistics --count --ignore=E501
   
