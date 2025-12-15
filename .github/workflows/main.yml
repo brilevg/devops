@@ -176,7 +176,7 @@ jobs:
           pip install safety
       - name: Run Safety Check
         run: |
-          safety check --full-report
+          safety check -r requirements.txt
 
   test-7:
     runs-on: ubuntu-latest
