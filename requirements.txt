@@ -6,4 +6,4 @@ flake8
 numpy
 pandas
 plotly
-pytorch
+torch
