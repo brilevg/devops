@@ -11,6 +11,12 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
 API_KEY = "my-super-secret-api-key-123456"
 
+AWS_ACCESS_KEY_ID = "AKIAIOSFODNN7EXAMPLE"
+AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+
+JWT_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYWRtaW4ifQ.dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+GITHUB_TOKEN = "ghp_1234567890abcdefghijklmnopqrstuvwxyz"
+
 # Определяем тип БД из переменных окружения
 DB_TYPE = os.getenv('DB_TYPE').lower()
 
