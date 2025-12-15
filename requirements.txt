@@ -3,7 +3,4 @@ psycopg2-binary
 pymongo
 httpx
 flake8
-numpy
-pandas
-plotly
-torch
+pickle
