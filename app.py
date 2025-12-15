@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, 
+request, redirect, url_for, flash, jsonify
 import os
 import time
 from datetime import datetime
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
-import json
+
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
@@ -14,27 +15,24 @@ DB_TYPE = os.getenv('DB_TYPE').lower()
 
 print(f"Запуск сервера с БД: {DB_TYPE}")
 
+
 class FakeDB:
     def __init__(self):
         self.books = []
         self.next_id = 1
-        
         print("FakeDB работает")
-    
     def get_all_books(self):
         return self.books.copy()
-    
     def get_book(self, book_id):
         try:
             book_id = int(book_id)
-        except:
+        except Exception:
             return None
             
         for book in self.books:
             if book['id'] == book_id:
                 return book
         return None
-    
     def create_book(self, book_data):
         book = {
             'id': self.next_id,
@@ -47,11 +45,10 @@ class FakeDB:
         self.books.append(book)
         self.next_id += 1
         return book
-    
     def update_book(self, book_id, book_data):
         try:
             book_id = int(book_id)
-        except:
+        except Exception:
             return None
             
         for book in self.books:
@@ -65,7 +62,6 @@ class FakeDB:
                 })
                 return book
         return None
-    
     def delete_book(self, book_id):
         try:
             book_id = int(book_id)
@@ -77,10 +73,10 @@ class FakeDB:
                 return self.books.pop(i)
         return None
 
+
 class PostgresDB:
     def __init__(self):
         import psycopg2
-        
         max_retries = 10
         for i in range(max_retries):
             try:
@@ -99,7 +95,6 @@ class PostgresDB:
                 if i < max_retries - 1:
                     time.sleep(2)
         raise Exception("PostgreSQL не подключилась")
-    
     def _init_db(self):
         cur = self.conn.cursor()
         cur.execute('''
@@ -115,7 +110,6 @@ class PostgresDB:
         ''')
         self.conn.commit()
         cur.close()
-    
     def get_all_books(self):
         cur = self.conn.cursor()
         cur.execute('SELECT * FROM books ORDER BY id')
@@ -132,7 +126,6 @@ class PostgresDB:
             })
         cur.close()
         return books
-    
     def get_book(self, book_id):
         cur = self.conn.cursor()
         cur.execute('SELECT * FROM books WHERE id = %s', (book_id,))
@@ -149,7 +142,6 @@ class PostgresDB:
                 'updated_at': row[6].isoformat() if row[6] else None
             }
         return None
-    
     def create_book(self, book_data):
         cur = self.conn.cursor()
         cur.execute(
@@ -160,7 +152,6 @@ class PostgresDB:
         self.conn.commit()
         cur.close()
         return self.get_book(book_id)
-    
     def update_book(self, book_id, book_data):
         cur = self.conn.cursor()
         cur.execute(
@@ -170,7 +161,6 @@ class PostgresDB:
         self.conn.commit()
         cur.close()
         return self.get_book(book_id)
-    
     def delete_book(self, book_id):
         book = self.get_book(book_id)
         if book:
@@ -180,10 +170,10 @@ class PostgresDB:
             cur.close()
         return book
 
+
 class MongoDB:
     def __init__(self):
         from pymongo import MongoClient
-        
         max_retries = 10
         for i in range(max_retries):
             try:
@@ -203,7 +193,6 @@ class MongoDB:
                 if i < max_retries - 1:
                     time.sleep(2)
         raise Exception("MongoDB не запустилась")
-            
     def get_all_books(self):
         try:
             books_cursor = self.books.find().sort('_id', 1)
@@ -226,7 +215,6 @@ class MongoDB:
         except Exception as e:
             print(f"Ошибка: {e}")
             return []
-    
     def get_book(self, book_id):
         try:
             book = self.books.find_one({'_id': ObjectId(book_id)})
@@ -248,7 +236,6 @@ class MongoDB:
         except (InvalidId, Exception) as e:
             print(f"Ошибка: {e}")
             return None
-    
     def create_book(self, book_data):
         try:
             book_doc = {
@@ -263,7 +250,6 @@ class MongoDB:
         except Exception as e:
             print(f"Ошибка: {e}")
             return None
-    
     def update_book(self, book_id, book_data):
         try:
             update_data = {
@@ -281,7 +267,6 @@ class MongoDB:
                 {'_id': ObjectId(book_id)},
                 {'$set': update_data}
             )
-            
             if result.modified_count == 1:
                 return self.get_book(book_id)
             else:
@@ -290,7 +275,6 @@ class MongoDB:
         except (InvalidId, Exception) as e:
             print(f"Ошибка: {e}")
             return None
-    
     def delete_book(self, book_id):
         try:
             book = self.get_book(book_id)
@@ -323,6 +307,7 @@ db = get_db()
 def index():
     return redirect(url_for('book_list'))
 
+
 @app.route('/books')
 def book_list():
     try:
@@ -331,6 +316,7 @@ def book_list():
     except Exception as e:
         flash(f'Ошибка загрузки книг: {str(e)}', 'error')
         return render_template('book_list.html', books=[], db_type=DB_TYPE)
+
 
 @app.route('/books/create', methods=['GET', 'POST'])
 def book_create():
@@ -354,6 +340,7 @@ def book_create():
             return redirect(url_for('book_list'))
     
     return render_template('book_form.html', db_type=DB_TYPE)
+
 
 @app.route('/books/<book_id>/edit', methods=['GET', 'POST'])
 def book_edit(book_id):
@@ -383,6 +370,7 @@ def book_edit(book_id):
     
     return render_template('book_form.html', book=book, db_type=DB_TYPE)
 
+
 @app.route('/books/<book_id>/delete', methods=['POST'])
 def book_delete(book_id):
     try:
@@ -404,6 +392,7 @@ def api_get_books():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
 @app.route('/api/books/<book_id>', methods=['GET'])
 def api_get_book(book_id):
     try:
@@ -413,6 +402,7 @@ def api_get_book(book_id):
         return jsonify({'error': 'Книга не найдена'}), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
 
 @app.route('/api/books', methods=['POST'])
 def api_create_book():
