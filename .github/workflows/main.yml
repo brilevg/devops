@@ -271,3 +271,17 @@ jobs:
             *.html
           if-no-files-found: warn
           retention-days: 30
+
+  test-10:
+    name: Trivy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Docker image
+        run: docker build -t app .
+      - name: Run Trivy (Filesystem)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: app
+          format: table
+          exit-code: 1
