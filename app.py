@@ -9,6 +9,8 @@ from bson.errors import InvalidId
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 
+app.secret_key = "secret-key"
+
 # Определяем тип БД из переменных окружения
 DB_TYPE = os.getenv('DB_TYPE').lower()
 
